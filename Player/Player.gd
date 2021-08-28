@@ -13,15 +13,19 @@ enum {
 var state = MOVE
 
 var velocity = Vector2.ZERO
+var stats = PlayerStats
 
 onready var animationPlayer= $AnimationPlayer
 onready var animationTree= $AnimationTree
 onready var animationState= animationTree.get("parameters/playback")
 onready var swordHitBox = $HitboxPivot/SwordHitBox
+onready var hurtBox = $HurtBox
 
 var roll_vector = Vector2.DOWN#remember the direction we moving in; input vector while attempting to move
 #don't want zero as we don't roll when zero, only in one direction
 func _ready():
+	randomize()
+	stats.connect("no_health", self, "queue_free")
 	swordHitBox.knockback_vector = roll_vector
 	animationTree.active = true
 	
@@ -85,4 +89,11 @@ func roll_animation_finished():
 	velocity = velocity * 0.8
 	state = MOVE
 	
+	
+
+
+func _on_HurtBox_area_entered(area):
+	stats.health -=1
+	hurtBox.start_invincibility(0.5)
+	hurtBox.create_hit_effect()
 	
