@@ -23,6 +23,7 @@ onready var sprite = $AnimatedSprite
 onready var hurtBox = $HurtBox
 onready var softCollisons = $SoftCollision
 onready var wanderController = $WanderController
+onready var animationPlayer = $AnimationPlayer
 
 func _ready():
 	print(stats.max_health)
@@ -73,6 +74,7 @@ func _on_HurtBox_area_entered(area):
 #area is basically the area of whaever enters the collisiion area
 # and the knock back vector is one of the elements of the body of area
 	hurtBox.create_hit_effect()
+	hurtBox.start_invincibility(0.4)
 
 func accelerate_toward_point(point, delta):
 	var direction = global_position.direction_to(point)
@@ -88,3 +90,11 @@ func _on_Stats_no_health():
 	var enemyDeathEffect = EnemyDeathEffect.instance()
 	get_parent().add_child(enemyDeathEffect)
 	enemyDeathEffect.global_position = global_position
+
+
+func _on_HurtBox_invincibility_started():
+	animationPlayer.play("Start")
+
+
+func _on_HurtBox_invincibility_ended():
+	animationPlayer.play("Stop")

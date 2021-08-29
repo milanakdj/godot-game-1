@@ -1,5 +1,7 @@
 extends KinematicBody2D
 
+const PlayerHurtSound = preload("res://Player/PlayerHurtSound.tscn")
+
 export var ACCELARATION = 500
 export var MAX_SPEED = 100 #max speed for the accelaration
 export var FRICTION = 500
@@ -15,11 +17,15 @@ var state = MOVE
 var velocity = Vector2.ZERO
 var stats = PlayerStats
 
+
+
 onready var animationPlayer= $AnimationPlayer
 onready var animationTree= $AnimationTree
 onready var animationState= animationTree.get("parameters/playback")
 onready var swordHitBox = $HitboxPivot/SwordHitBox
 onready var hurtBox = $HurtBox
+onready var blinkAnimationPlayer = $BlinkAnimationPlayer
+
 
 var roll_vector = Vector2.DOWN#remember the direction we moving in; input vector while attempting to move
 #don't want zero as we don't roll when zero, only in one direction
@@ -93,7 +99,17 @@ func roll_animation_finished():
 
 
 func _on_HurtBox_area_entered(area):
-	stats.health -=1
+	stats.health -= area.damage
 	hurtBox.start_invincibility(0.5)
 	hurtBox.create_hit_effect()
+	var playerHurtSound = PlayerHurtSound.instance()
+	get_tree().current_scene.add_child(playerHurtSound)
 	
+
+
+func _on_HurtBox_invincibility_started():
+	blinkAnimationPlayer.play("Start")
+
+
+func _on_HurtBox_invincibility_ended():
+	blinkAnimationPlayer.play("Stop")
